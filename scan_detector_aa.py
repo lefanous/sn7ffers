@@ -27,6 +27,8 @@ if __name__ == "__main__":
             selected_device = devices[int(selection)]
             capture_packets(selected_device)
         except (ValueError, IndexError):
+            print(ValueError)
+            print(IndexError)
             print("Invalid selection. Please run the script again and choose a valid number.")
     else:
         print("No devices found.")
