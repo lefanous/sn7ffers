@@ -1,29 +1,23 @@
-import pcapy
+from scapy.all import *
 from datetime import datetime
 
 def list_devices():
-    devices = pcapy.findalldevs()
+    devices = get_if_list()
     for i, device in enumerate(devices):
         print(f"{i}. {device}")
     return devices
 
 def capture_packets(device):
-    cap = pcapy.open_live(device, 65536, True, 100)
-    filter = "port 22"
-    cap.setfilter(filter)  # Set the filter directly on the pcap object
-    
     print(f"Capturing packets on {device}...")
-    while True:
-        (header, packet) = cap.next()
-        if packet is None:
-            continue
-        
-        # Log the packet to a file
-        # with open("scan_log.txt", "a") as f:
-        #     f.write(f"[{datetime.now()}] {packet}\n")
 
-        # Log the packet to the console
-        print(f"[{datetime.now()}] {packet}")
+    def packet_callback(packet):
+        if packet.haslayer(TCP) and (packet[TCP].sport == 22 or packet[TCP].dport == 22):
+            with open("scan_log.txt", "a") as f:
+                f.write(f"[{datetime.now()}] {packet.summary()}\n")
+
+            f.write(f"[{datetime.now()}] {packet.summary()}\n")
+
+    sniff(iface=device, prn=packet_callback, store=0)
 
 if __name__ == "__main__":
     devices = list_devices()
