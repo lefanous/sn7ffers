@@ -19,8 +19,11 @@ def capture_packets(device):
             continue
         
         # Log the packet to a file
-        with open("scan_log.txt", "a") as f:
-            f.write(f"[{datetime.now()}] {packet}\n")
+        # with open("scan_log.txt", "a") as f:
+        #     f.write(f"[{datetime.now()}] {packet}\n")
+
+        # Log the packet to the console
+        print(f"[{datetime.now()}] {packet}")
 
 if __name__ == "__main__":
     devices = list_devices()
