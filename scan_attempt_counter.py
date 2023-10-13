@@ -36,7 +36,7 @@ def monitor_packet(pkt):
             captured_data[src_ip] = {}  # Initialize an empty dictionary for that source IP
 
         if dst_port not in captured_data[src_ip]:  # If the destination port is not in the source IP's dictionary
-            captured_data[src_ip][dst_port] = {"count": 0, "dst_ip": dst_ip}  # Initialize a count and store the destination IP
+            captured_data[src_ip][dst_port] = {"count": 0, "dst_ip": dst_ip, "status":"Closed"}  # Initialize a count and store the destination IP
 
         captured_data[src_ip][dst_port]["count"] += 1  # Increment the count of attempts
 
@@ -46,7 +46,15 @@ def monitor_packet(pkt):
             for port, data in port_counts.items():  # Iterate through the ports and their data
                 count = data["count"]  # Get the count of attempts
                 dest_ip = data["dst_ip"]  # Get the destination IP
-                print(f'Source IP: {src_ip}, Destination IP: {dest_ip}, Destination Port: {port}, Attempts: {count}')  # Print the information
+                status = data["status"]
+                
+                # Check if the port is open (example: using SYN/ACK flag as an indicator)
+                # We then check if the port is open based on a simple condition (e.g., if the number of
+                # attempts is greater than 1) and update the status accordingly. 
+                if status == "Closed" and count > 1:
+                    status = "Open"
+                    
+                print(f'Src_IP: {src_ip} | Dst_IP: {dest_ip} | Dst_Port: {port:5} | Status:{status:8}| Attempts: {count}')  # Print the information
 
 if __name__ == '__main__':
     sniff(prn=monitor_packet, store=0, iface="eth0")  # Start capturing packets and call the monitor_packet function
