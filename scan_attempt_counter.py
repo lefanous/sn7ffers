@@ -49,5 +49,5 @@ def monitor_packet(pkt):
                 print(f'Source IP: {src_ip}, Destination IP: {dest_ip}, Destination Port: {port}, Attempts: {count}')  # Print the information
 
 if __name__ == '__main__':
-    sniff(prn=monitor_packet, store=0)  # Start capturing packets and call the monitor_packet function
+    sniff(prn=monitor_packet, store=0, iface="eth0")  # Start capturing packets and call the monitor_packet function
 
