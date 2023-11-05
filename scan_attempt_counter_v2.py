@@ -2,7 +2,7 @@
 
 '''
 ----- README ----
-## Objective :
+## Objective:
 Use Scapy to sniff the packets arriving at a network interface. After each packet is
 captured, process it using a callback function to get useful information from it.
 
@@ -55,5 +55,22 @@ def monitor_packet(pkt):
             src_ip, dest_ip, port = conn
             print(f'Src_IP: {src_ip} | Dst_IP: {dest_ip} | Dst_Port: {port:5} | Status: {data["status"]:8} | Attempts: {data["count"]}')
 
+def get_interfaces():
+    return get_if_list()
+
+def choose_interface(interfaces):
+    for i, iface in enumerate(interfaces):
+        print(f"{i}. {iface}")
+    choice = input("Select the interface to sniff (number): ")
+    try:
+        selected_interface = interfaces[int(choice)]
+        return selected_interface
+    except (IndexError, ValueError):
+        print("Invalid selection. Please select a valid interface number.")
+        return choose_interface(interfaces)
+
 if __name__ == '__main__':
-    sniff(prn=monitor_packet, store=0, iface="eth0")  # Start capturing packets and call the monitor_packet function
+    interfaces = get_interfaces()
+    selected_interface = choose_interface(interfaces)
+    print(f"Sniffing on interface: {selected_interface}")
+    sniff(prn=monitor_packet, store=0, iface=selected_interface)  # Start capturing packets on the chosen interface
