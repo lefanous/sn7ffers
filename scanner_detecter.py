@@ -56,13 +56,23 @@ def pattern_match(flag_sequence, pattern):
         return False
     
     for i, flag in enumerate(flag_sequence):
+        # Check if the pattern at this index is a tuple (flag, window_size)
         if isinstance(pattern[i], tuple):
-            if flag[0] != pattern[i][0] or flag[1] != pattern[i][1]:
+            # Check if the flag matches and the window size matches
+            if isinstance(flag, tuple):
+                if flag[0] != pattern[i][0] or flag[1] != pattern[i][1]:
+                    return False
+            else:
+                # Pattern expects a window size, but incoming flag doesn't have it
                 return False
         else:
-            if flag != pattern[i]:
+            # Pattern is just a flag, compare only flags
+            # Extract flag from incoming packet if it's a tuple (flag, window_size)
+            incoming_flag = flag[0] if isinstance(flag, tuple) else flag
+            if incoming_flag != pattern[i]:
                 return False
     return True
+
 
 
 def periodic_scan_detection(internal_ip, interface):
