@@ -22,5 +22,10 @@ def periodic_scan_detection(internal_ip, interface, connections, scanner_pattern
         os.system("clear")
         print_header(internal_ip, interface)
         print_scan_detection(connections, scanner_patterns, pattern_match)
+
+        # debug: print each connection on a new line
+        for src, data in connections.items():
+            print(f'{src} | {data}')
+
         time.sleep(1)
 
