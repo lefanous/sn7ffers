@@ -26,7 +26,7 @@ from scapy.all import *  # Import the Scapy library for working with network pac
 from functools import partial
 import threading
 import time
-from helpers import ascii_art, scanner_patterns, pattern_match
+from helpers import get_interfaces, choose_interface, get_internal_ip, periodic_scan_detection
 
 # Initialize dictionaries to store captured data
 connections = {}
