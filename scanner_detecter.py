@@ -51,7 +51,6 @@ scanner_patterns = [
 ]
 
 def pattern_match(flag_sequence, pattern):
-    print(flag_sequence, pattern)
     if len(flag_sequence) != len(pattern):
         return False
     
