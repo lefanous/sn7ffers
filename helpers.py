@@ -1,6 +1,7 @@
 import os
 import socket
 import netifaces as ni
+from scapy.all import *
 
 ascii_art = r'''
    _____    _____________              
