@@ -62,7 +62,9 @@ def monitor_packet(internal_ip, pkt):
         # Define the key for the captured data dictionary
         attacker_ip = src_ip if src_ip != internal_ip else dst_ip
         target_port = dst_port if src_ip != internal_ip else src_port
-        connection_key = (attacker_ip, target_port)
+
+        rounded_time = round(time.time(), -1)
+        connection_key = (attacker_ip, target_port, rounded_time)
 
         # Initialize or update the connection data
         if connection_key not in connections:
@@ -85,9 +87,9 @@ def pattern_match(flag_sequence, pattern):
             return True
     return False
 
-def print_detection_line(scanner, src_ip, ports, status, timestamp):
+def print_detection_line(scanner, src, ports, status, timestamp):
     print(f'New scan detection at {time.ctime(timestamp)}')
-    print(f'{scanner} scan detected from source IP: {src_ip} | Ports: {ports} | Status: {status}')
+    print(f'{scanner} scan detected from source IP: {src[0]} on port: {src[1]} | Ports: {ports} | Status: {status}')
     print("=================================")
 
 def print_scan_detection():
