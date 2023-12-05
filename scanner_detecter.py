@@ -70,7 +70,7 @@ def periodic_scan_detection(internal_ip, interface):
         print(f"Sniffing on interface: {interface}")
         print(f"Internal IP: {internal_ip}")
         print("=================================")
-        print_scan_detection()
+        print_scan_detection(collections)
         time.sleep(1)
 
 ############## Print ##############
