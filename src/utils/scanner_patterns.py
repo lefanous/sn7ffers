@@ -3,8 +3,10 @@ scanner_patterns = [
     ([('S', 64240), 'RA', ('S', 64240), 'RA'], 'Angry IP', 'Closed'),
     (['S', 'SA', 'R', 'R'], 'Masscan', 'Open'),
     (['S', 'RA', 'R'], 'Masscan', 'Closed'),
-    (['S', 'SA', 'R'], 'Nmap / ZMap', 'Open'),
-    (['S', 'RA'], 'Nmap / ZMap', 'Closed'),
+    ([('S', 1024), 'SA', 'R'], 'Nmap', 'Open'),
+    ([('S', 1024), 'RA'], 'Nmap', 'Closed'),
+    (['S', 'SA', 'R'], 'ZMap', 'Open'),
+    (['S', 'RA'], 'ZMap', 'Closed'),
 ]
 
 def pattern_match(flag_sequence, pattern):
