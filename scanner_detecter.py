@@ -74,18 +74,44 @@ def monitor_packet(internal_ip, pkt):
             if dst_port not in connections[connection_key]["dst_ports"]:
                 connections[connection_key]["dst_ports"].append(dst_port)
 
+# def pattern_match(flag_sequence, pattern):
+#     """
+#     Checks if the given pattern of flags appears in the flag_sequence.
+#     :param flag_sequence: A list of TCP flags in the order they were captured.
+#     :param pattern: A list of TCP flags representing a scanner signature.
+#     :return: True if the pattern is found in flag_sequence, False otherwise.
+#     """
+#     pattern_len = len(pattern)
+#     for i in range(len(flag_sequence) - pattern_len + 1):
+#         if flag_sequence[i:i + pattern_len] == pattern:
+#             return True
+#     return False
+
 def pattern_match(flag_sequence, pattern):
     """
-    Checks if the given pattern of flags appears in the flag_sequence.
+    Checks if the given pattern of flags matches the flag_sequence or a significant part of it.
     :param flag_sequence: A list of TCP flags in the order they were captured.
     :param pattern: A list of TCP flags representing a scanner signature.
-    :return: True if the pattern is found in flag_sequence, False otherwise.
+    :return: True if the pattern matches a significant part of flag_sequence, False otherwise.
     """
     pattern_len = len(pattern)
-    for i in range(len(flag_sequence) - pattern_len + 1):
-        if flag_sequence[i:i + pattern_len] == pattern:
+    sequence_len = len(flag_sequence)
+
+    # Adjust this threshold based on how specific you want the match to be
+    # For example, 0.7 means 70% of the pattern should match
+    match_threshold = 0.7
+
+    # Iterate over the flag_sequence
+    for i in range(sequence_len - pattern_len + 1):
+        # Count the number of matching flags
+        match_count = sum(1 for j in range(pattern_len) if flag_sequence[i + j] == pattern[j])
+
+        # Check if the match_count meets the threshold
+        if match_count / pattern_len >= match_threshold:
             return True
+
     return False
+
 
 def print_detection_line(scanner, src, ports, status, timestamp):
     print(f'New scan detection at {time.ctime(timestamp)}')
