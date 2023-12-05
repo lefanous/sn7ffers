@@ -43,7 +43,7 @@ ascii_art = r'''
 
 scanner_patterns = [
     (['S', 'RA', 'S', 'SA', 'A', 'RA'], 'Angry IP scanner', 'Open'),
-    (['S', 'RA', 'S', 'RA'], 'Angry IP scanner', 'Closed'),
+    ([('S', 64240), 'RA', ('S', 64240), 'RA'], 'Angry IP scanner', 'Closed'),
     (['S', 'SA', 'R', 'R'], 'Masscan', 'Open'),
     (['S', 'RA', 'R'], 'Masscan', 'Closed'),
     (['S', 'SA', 'R'], 'nmap / zmap scanner', 'Open'),
@@ -54,7 +54,10 @@ def pattern_match(flag_sequence, pattern):
     if len(flag_sequence) < len(pattern):
         return False
     for i, flag in enumerate(pattern):
-        if flag != flag_sequence[i]:
+        if isinstance(flag, tuple):
+            if flag[1] != flag_sequence[i][1]:
+                return False
+        elif flag != flag_sequence[i]:
             return False
     return True
 
@@ -71,17 +74,16 @@ def periodic_scan_detection(internal_ip, interface):
 
 ############## Print ##############
 
-def print_detection_line(scanner, src, ports, status, timestamp, pkt_seq_num):
+def print_detection_line(scanner, src, ports, status, timestamp):
     print(f'New scan detection at {time.ctime(timestamp)}')
     print(f'{scanner} scan detected from source IP: {src[0]} on port: {src[1]} | Ports: {ports} | Status: {status}')
-    print(f'Packet sequence numbers: {pkt_seq_num}')
     print("=================================")
 
 def print_scan_detection():
     for src, data in connections.items():
         for pattern, name, status in scanner_patterns:
             if(pattern_match(data["tcp_flags"], pattern)):
-                print_detection_line(name, src, data["dst_ports"], status, data["timestamp"], data["pkt_seq_num"])
+                print_detection_line(name, src, data["dst_ports"], status, data["timestamp"])
 
 ############## Network Inteface ##############
 
@@ -122,6 +124,7 @@ def monitor_packet(internal_ip, pkt):
         dst_port = pkt[TCP].dport  # Get the destination port from the packet
         src_port = pkt[TCP].sport  # Get the source port from the packet
         tcp_flag = pkt[TCP].flags  # Get the TCP flags from the packet
+        window_size = pkt[TCP].window  # Get the TCP window size from the packet
 
         # Define the key for the captured data dictionary
         attacker_ip = src_ip if src_ip != internal_ip else dst_ip
@@ -131,15 +134,13 @@ def monitor_packet(internal_ip, pkt):
 
         # Initialize or update the connection data
         if connection_key not in connections:
-            connections[connection_key] = {"tcp_flags": [tcp_flag],
+            connections[connection_key] = {"tcp_flags": [(tcp_flag, window_size)],
                                            "status": "Closed",
                                            "src_port": src_port,
                                            "dst_ports": [dst_port],
-                                           "pkt_seq_num": [pkt[TCP].seq],
                                            "timestamp": time.time()}
         else:
-            connections[connection_key]["tcp_flags"].append(tcp_flag)
-            connections[connection_key]["pkt_seq_num"].append(pkt[TCP].seq)
+            connections[connection_key]["tcp_flags"].append((tcp_flag, window_size))
             if dst_port not in connections[connection_key]["dst_ports"]:
                 connections[connection_key]["dst_ports"].append(dst_port)
 
