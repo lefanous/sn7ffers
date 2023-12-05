@@ -11,7 +11,7 @@ from src.utils.print import periodic_scan_detection
 from src.utils.packets import extract_packet_info
 
 connections = {} # Initialize dictionaries to store captured data
-MAX_TIME_THRESHOLD = 11235 # Maximum time gap between packets in a connection
+# MAX_TIME_THRESHOLD = 11235 # Maximum time gap between packets in a connection
 
 def monitor_packet(internal_ip, packet):
     pkt = extract_packet_info(packet)
@@ -24,7 +24,7 @@ def monitor_packet(internal_ip, packet):
     attacker_ip = pkt["src_ip"] if pkt["src_ip"] != internal_ip else pkt["dst_ip"]
     target_port = pkt["dst_port"] if pkt["src_ip"] != internal_ip else pkt["src_port"]
 
-    connection_key = (attacker_ip, target_port, int(current_time / MAX_TIME_THRESHOLD))
+    connection_key = (attacker_ip, target_port)
 
     if connection_key not in connections:
         connections[connection_key] = {"tcp_flags": [(pkt["tcp_flag"], pkt["window_size"])],
