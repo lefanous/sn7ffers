@@ -24,7 +24,7 @@ def monitor_packet(internal_ip, packet):
     attacker_ip = pkt["src_ip"] if pkt["src_ip"] != internal_ip else pkt["dst_ip"]
     target_port = pkt["dst_port"] if pkt["src_ip"] != internal_ip else pkt["src_port"]
 
-    connection_key = (attacker_ip, target_port)
+    connection_key = (attacker_ip, target_port, int(current_time / MAX_TIME_THRESHOLD))
 
     if connection_key not in connections or current_time - connections[connection_key]["timestamp"] > MAX_TIME_THRESHOLD:
         connections[connection_key] = {"tcp_flags": [(pkt["tcp_flag"], pkt["window_size"])],
