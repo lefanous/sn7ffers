@@ -52,14 +52,16 @@ scanner_patterns = [
 
 def pattern_match(flag_sequence, pattern):
     print(flag_sequence, pattern)
-    if len(flag_sequence) < len(pattern):
+    if len(flag_sequence) != len(pattern):
         return False
-    for i, flag in enumerate(pattern):
-        if isinstance(flag, tuple):
-            if flag[1] != flag_sequence[i][1]:
+    
+    for i, flag in enumerate(flag_sequence):
+        if isinstance(pattern[i], tuple):
+            if flag[0] != pattern[i][0] or flag[1] != pattern[i][1]:
                 return False
-        elif flag != flag_sequence[i]:
-            return False
+        else:
+            if flag != pattern[i]:
+                return False
     return True
 
 
