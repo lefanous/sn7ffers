@@ -71,16 +71,17 @@ def periodic_scan_detection(internal_ip, interface):
 
 ############## Print ##############
 
-def print_detection_line(scanner, src, ports, status, timestamp):
+def print_detection_line(scanner, src, ports, status, timestamp, pkt_seq_num):
     print(f'New scan detection at {time.ctime(timestamp)}')
     print(f'{scanner} scan detected from source IP: {src[0]} on port: {src[1]} | Ports: {ports} | Status: {status}')
+    print(f'Packet sequence numbers: {pkt_seq_num}')
     print("=================================")
 
 def print_scan_detection():
     for src, data in connections.items():
         for pattern, name, status in scanner_patterns:
             if(pattern_match(data["tcp_flags"], pattern)):
-                print_detection_line(name, src, data["dst_ports"], status, data["timestamp"])
+                print_detection_line(name, src, data["dst_ports"], status, data["timestamp"], data["pkt_seq_num"])
 
 ############## Network Inteface ##############
 
@@ -130,9 +131,15 @@ def monitor_packet(internal_ip, pkt):
 
         # Initialize or update the connection data
         if connection_key not in connections:
-            connections[connection_key] = {"tcp_flags": [tcp_flag], "status": "Closed", "src_port": src_port, "dst_ports": [dst_port], "timestamp": time.time()}
+            connections[connection_key] = {"tcp_flags": [tcp_flag],
+                                           "status": "Closed",
+                                           "src_port": src_port,
+                                           "dst_ports": [dst_port],
+                                           "pkt_seq_num": [pkt[TCP].seq],
+                                           "timestamp": time.time()}
         else:
             connections[connection_key]["tcp_flags"].append(tcp_flag)
+            connections[connection_key]["pkt_seq_num"].append(pkt[TCP].seq)
             if dst_port not in connections[connection_key]["dst_ports"]:
                 connections[connection_key]["dst_ports"].append(dst_port)
 
