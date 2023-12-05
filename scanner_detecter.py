@@ -62,7 +62,7 @@ def monitor_packet(internal_ip, pkt):
         # Define the key for the captured data dictionary
         attacker_ip = src_ip if src_ip != internal_ip else dst_ip
         target_port = dst_port if src_ip != internal_ip else src_port
-        connection_key = [attacker_ip, target_port]
+        connection_key = (attacker_ip, target_port)
 
         # Initialize or update the connection data
         if connection_key not in connections:
