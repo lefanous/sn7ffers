@@ -70,7 +70,7 @@ def periodic_scan_detection(internal_ip, interface):
         print(f"Sniffing on interface: {interface}")
         print(f"Internal IP: {internal_ip}")
         print("=================================")
-        print_scan_detection(collections)
+        print_scan_detection()
         time.sleep(1)
 
 ############## Print ##############
@@ -80,7 +80,7 @@ def print_detection_line(scanner, src, ports, status, timestamp):
     print(f'{scanner} scan detected from source IP: {src[0]} on port: {src[1]} | Ports: {ports} | Status: {status}')
     print("=================================")
 
-def print_scan_detection(connections):
+def print_scan_detection():
     for src, data in connections.items():
         for pattern, name, status in scanner_patterns:
             if(pattern_match(data["tcp_flags"], pattern)):
