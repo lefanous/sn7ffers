@@ -66,10 +66,11 @@ def monitor_packet(internal_ip, pkt):
 
         # Initialize or update the connection data
         if connection_key not in connections:
-            connections[connection_key] = {"tcp_flags": [tcp_flag], "status": "Closed", "src_port": src_port, "dst_ports": [dst_port]}
+            connections[connection_key] = {"tcp_flags": [tcp_flag], "status": "Closed", "src_port": src_port, "dst_ports": [dst_port], "timestamp": time.time()}
         else:
             connections[connection_key]["tcp_flags"].append(tcp_flag)
-            connections[connection_key]["dst_ports"].append(dst_port)
+            if dst_port not in connections[connection_key]["dst_ports"]:
+                connections[connection_key]["dst_ports"].append(dst_port)
 
 def pattern_match(flag_sequence, pattern):
     """
@@ -84,14 +85,16 @@ def pattern_match(flag_sequence, pattern):
             return True
     return False
 
-def print_detection_line(scanner, src_ip, ports, status):
-    print(f'{scanner} scan detected on source IP: {src_ip} | Ports: {ports} | Status: {status}')
+def print_detection_line(scanner, src_ip, ports, status, timestamp):
+    print(f'New scan detection at {time.ctime(timestamp)}')
+    print(f'{scanner} scan detected from source IP: {src_ip} | Ports: {ports} | Status: {status}')
+    print("=================================")
 
 def print_scan_detection():
     for src, data in connections.items():
         for pattern, name, status in scanner_patterns:
             if(pattern_match(data["tcp_flags"], pattern)):
-                print_detection_line(name, src, data["dst_ports"], status)
+                print_detection_line(name, src, data["dst_ports"], status, data["timestamp"])
 
 def get_interfaces():
     return get_if_list()
