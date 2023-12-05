@@ -1,6 +1,7 @@
 scanner_patterns = [
-    (['S', 'RA', 'S', 'SA', 'A', 'RA'], 'Angry IP', 'Open'),
-    ([('S', 64240), 'RA', ('S', 64240), 'RA'], 'Angry IP', 'Closed'),
+    (['S', 'SA', 'A', 'RA'], 'Angry IP', 'Open'),
+    ([('S', 1152), 'RA'], 'Angry IP', 'Closed'),
+    ([('S', 64240), 'RA', ('S', 64240), 'RA'], 'Angry IP Echo Ping', 'Closed'),
     (['S', 'SA', 'R', 'R'], 'Masscan', 'Open'),
     (['S', 'RA', 'R'], 'Masscan', 'Closed'),
     ([('S', 1024), 'SA', 'R'], 'Nmap', 'Open'),
