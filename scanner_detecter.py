@@ -15,7 +15,7 @@ connections = {} # Initialize dictionaries to store captured data
 def monitor_packet(internal_ip, packet):
     pkt = extract_packet_info(packet)
 
-    if pkt is not None:
+    if pkt is None:
         return
     
     attacker_ip = pkt["src_ip"] if pkt["src_ip"] != internal_ip else pkt["dst_ip"]
