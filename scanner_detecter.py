@@ -46,22 +46,18 @@ scanner_patterns = [
     (['S', 'RA', 'S', 'RA'], 'Angry IP scanner', 'Closed'),
     (['S', 'SA', 'R', 'R'], 'Masscan', 'Open'),
     (['S', 'RA', 'R'], 'Masscan', 'Closed'),
-    (['S', 'SA', 'R'], 'Nmap/zmap scanner', 'Open'),
-    (['S', 'RA'], 'Nmap/zmap scanner', 'Closed'),
+    (['S', 'SA', 'R'], 'nmap / zmap scanner', 'Open'),
+    (['S', 'RA'], 'nmap / zmap scanner', 'Closed'),
 ]
 
 def pattern_match(flag_sequence, pattern):
-    """
-    Checks if the given pattern of flags appears in the flag_sequence.
-    :param flag_sequence: A list of TCP flags in the order they were captured.
-    :param pattern: A list of TCP flags representing a scanner signature.
-    :return: True if the pattern is found in flag_sequence, False otherwise.
-    """
-    pattern_len = len(pattern)
-    for i in range(len(flag_sequence) - pattern_len + 1):
-        if flag_sequence[i:i + pattern_len] == pattern:
-            return True
-    return False
+    if len(flag_sequence) < len(pattern):
+        return False
+    for i, flag in enumerate(pattern):
+        if flag != flag_sequence[i]:
+            return False
+    return True
+
 
 def periodic_scan_detection(internal_ip, interface):
     while True:
