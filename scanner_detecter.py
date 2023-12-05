@@ -11,7 +11,7 @@ from src.utils.print import periodic_scan_detection
 from src.utils.packets import extract_packet_info
 
 connections = {} # Initialize dictionaries to store captured data
-MAX_TIME_THRESHOLD = 5 # Maximum time gap between packets in a connection
+MAX_TIME_THRESHOLD = 1 # Maximum time gap between packets in a connection
 
 def monitor_packet(internal_ip, packet):
     pkt = extract_packet_info(packet)
