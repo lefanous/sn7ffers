@@ -9,7 +9,7 @@ def print_header(internal_ip, interface):
     print("=================================")
     
 def print_detection_line(scanner, src, ports, status, timestamp):
-    print(f'[{time.ctime(timestamp)}] {scanner} scan from {src[0]}:{src[1]} | Ports: {ports} | Status: {status} |')
+    print(f'[{time.ctime(timestamp)}] {scanner} scan from {src[0]} | Ports: {ports} | Status: {status} |')
     
 def print_scan_detection(connections, scanner_patterns, pattern_match):
     for src, data in connections.items():
