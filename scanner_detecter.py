@@ -98,7 +98,7 @@ def pattern_match(flag_sequence, pattern):
 
     # Adjust this threshold based on how specific you want the match to be
     # For example, 0.7 means 70% of the pattern should match
-    match_threshold = 0.7
+    match_threshold = 1.0
 
     # Iterate over the flag_sequence
     for i in range(sequence_len - pattern_len + 1):
