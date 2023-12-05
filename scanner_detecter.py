@@ -22,6 +22,8 @@ Feel free to add to this script. I haven't really made it robust, with error han
 
 from scapy.all import *  # Import the Scapy library for working with network packets
 import os
+import threading
+import time
 import netifaces as ni
 
 # Get the internal IP address
@@ -29,20 +31,16 @@ internal_ip = ni.ifaddresses('eth0')[ni.AF_INET][0]['addr']
 
 # Initialize dictionaries to store captured data
 connections = {}
-result = {}
 
-def pattern_match(flag_sequence, pattern):
-    """
-    Checks if the given pattern of flags appears in the flag_sequence.
-    :param flag_sequence: A list of TCP flags in the order they were captured.
-    :param pattern: A list of TCP flags representing a scanner signature.
-    :return: True if the pattern is found in flag_sequence, False otherwise.
-    """
-    pattern_len = len(pattern)
-    for i in range(len(flag_sequence) - pattern_len + 1):
-        if flag_sequence[i:i + pattern_len] == pattern:
-            return True
-    return False
+# Scanner detection patterns
+scanner_patterns = [
+    (['S', 'RA', 'S', 'SA', 'A', 'RA'], 'Angry IP scanner', 'Open'),
+    (['S', 'RA', 'S', 'RA'], 'Angry IP scanner', 'Closed'),
+    (['S', 'SA', 'R', 'R'], 'Masscan', 'Open'),
+    (['S', 'RA', 'R'], 'Masscan', 'Closed'),
+    (['S', 'SA', 'R'], 'Nmap/zmap scanner', 'Open'),
+    (['S', 'RA'], 'Nmap/zmap scanner', 'Closed'),
+]
 
 def monitor_packet(pkt):
     if IP in pkt and TCP in pkt:  # Check if the packet is an IP and TCP packet
@@ -64,33 +62,6 @@ def monitor_packet(pkt):
             connections[connection_key]["tcp_flags"].append(tcp_flag)
             connections[connection_key]["dst_ports"].append(dst_port)
 
-        # Scanner detection patterns
-        angryip_open_pattern = ['S', 'RA', 'S', 'SA', 'A', 'RA']
-        angryip_closed_pattern = ['S', 'RA', 'S', 'RA']
-        masscan_open_pattern = ['S', 'SA', 'R', 'R']
-        masscan_closed_pattern = ['S', 'RA', 'R']
-        nmap_zmap_open_pattern = ['S', 'SA', 'R']
-        nmap_zmap_closed_pattern = ['S', 'RA']
-
-
-        # Print the captured data
-        #os.system('clear')  # Clear the terminal screen
-        for src, data in connections.items():
-            
-        # Scanner detection
-            if pattern_match(connections[connection_key]["tcp_flags"], angryip_open_pattern):
-                print(f'Angry IP scanner detected on Src_IP: {src} | Dst/Src_Port: {data["dst_ports"]} | Status: Open')
-            elif pattern_match(connections[connection_key]["tcp_flags"], angryip_closed_pattern):
-                print(f'Angry IP scanner detected on Src_IP: {src} | Dst/Src_Port: {data["dst_ports"]} | Status: Closed')
-            elif pattern_match(connections[connection_key]["tcp_flags"], masscan_open_pattern):
-                print(f'Masscan scan detected on Src_IP: {src} | Dst/Src_Port: {data["dst_ports"]} | Status: Open')
-            elif pattern_match(connections[connection_key]["tcp_flags"], masscan_closed_pattern):
-                print(f'Masscan scan detected on Src_IP: {src} | Dst/Src_Port: {data["dst_ports"]} | Status: Closed')
-            elif pattern_match(connections[connection_key]["tcp_flags"], nmap_zmap_open_pattern):
-                print(f'Nmap/zmap scanner detected on Src_IP: {src} | Dst/Src_Port: {data["dst_ports"]} | Status: Open')
-            elif pattern_match(connections[connection_key]["tcp_flags"], nmap_zmap_closed_pattern):
-                print(f'Nmap/zmap scanner detected on Src_IP: {src} | Dst/Src_Port: {data["dst_ports"]} | Status: Closed')
-
 def get_interfaces():
     return get_if_list()
 
@@ -103,9 +74,27 @@ ascii_art = r'''
                                        
 '''
 
-# Print the ASCII art
+def pattern_match(flag_sequence, pattern):
+    """
+    Checks if the given pattern of flags appears in the flag_sequence.
+    :param flag_sequence: A list of TCP flags in the order they were captured.
+    :param pattern: A list of TCP flags representing a scanner signature.
+    :return: True if the pattern is found in flag_sequence, False otherwise.
+    """
+    pattern_len = len(pattern)
+    for i in range(len(flag_sequence) - pattern_len + 1):
+        if flag_sequence[i:i + pattern_len] == pattern:
+            return True
+    return False
 
+def print_detection_line(scanner, src_ip, ports, status):
+    print(f'{scanner} scan detected on source IP: {src_ip} | Ports: {ports} | Status: {status}')
 
+def print_scan_detection():
+    for src, data in connections.items():
+        for pattern, name, status in scanner_patterns:
+            if(pattern_match(data["tcp_flags"], pattern)):
+                print_detection_line(name, src, data["dst_ports"], status)
 
 def choose_interface(interfaces):
     print(ascii_art)
@@ -119,8 +108,20 @@ def choose_interface(interfaces):
         print("Invalid selection. Please select a valid interface number.")
         return choose_interface(interfaces)
 
+def periodic_scan_detection():
+    while True:
+        print_scan_detection()
+        time.sleep(1)
+
 if __name__ == '__main__':
     interfaces = get_interfaces()
     selected_interface = choose_interface(interfaces)
     print(f"Sniffing on interface: {selected_interface}")
+
+     # Start the periodic scan detection in a separate thread
+    detection_thread = threading.Thread(target=periodic_scan_detection)
+    detection_thread.daemon = True  # This makes the thread exit when the main program exits
+    detection_thread.start()
+
+    # Start sniffing
     sniff(prn=monitor_packet, store=0, iface=selected_interface)  # Start capturing packets on the chosen interface
