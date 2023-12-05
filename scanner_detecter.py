@@ -78,7 +78,6 @@ def periodic_scan_detection(internal_ip, interface):
     while True:
         os.system("clear")
         print(ascii_art)
-        print(connections)
         print(f"Sniffing on interface: {interface}")
         print(f"Internal IP: {internal_ip}")
         print("=================================")
