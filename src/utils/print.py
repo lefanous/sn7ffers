@@ -1,5 +1,6 @@
 from src.utils.ascii import ascii_art
 import time
+import os
 
 def print_header(internal_ip, interface):
     print(ascii_art)
