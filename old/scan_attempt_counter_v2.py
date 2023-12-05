@@ -24,6 +24,7 @@ Feel free to add to this script. I haven't really made it robust, with error han
 
 from scapy.all import *  # Import the Scapy library for working with network packets
 import os
+'''TODO I think we should only look at the packets where our ip is the src or dst'''
 
 captured_data = {}  # Initialize an empty dictionary to store captured data
 
@@ -41,9 +42,12 @@ def monitor_packet(pkt):
         if connection_key not in captured_data:
             captured_data[connection_key] = {"count": 0, "status": "Closed"}
 
+        '''TODO I think we should agree on what is an attempt and what is just communication - if the amount of attemps is relevant'''
         captured_data[connection_key]["count"] += 1  # Increment the count of attempts
 
         # Check if the TCP flags indicate a SYN-ACK (port is open) or RST (port is closed)
+        '''TODO is it not a rst, ack if the port is closed? and make it more robust maybe'''
+        print(tcp_flags) 
         if 'S' in tcp_flags and 'A' in tcp_flags:
             captured_data[connection_key]["status"] = "Open"
         elif 'R' in tcp_flags:
