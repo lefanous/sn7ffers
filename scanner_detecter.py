@@ -1,8 +1,8 @@
 #/usr/bin/env python3
 
 import threading
+import time
 
-from time import time
 from scapy.all import *
 from functools import partial
 from src.utils.scanner_patterns import scanner_patterns, pattern_match
@@ -19,7 +19,7 @@ def monitor_packet(internal_ip, packet):
     if pkt is None:
         return
     
-    current_time = time()
+    current_time = time.time()
     
     attacker_ip = pkt["src_ip"] if pkt["src_ip"] != internal_ip else pkt["dst_ip"]
     target_port = pkt["dst_port"] if pkt["src_ip"] != internal_ip else pkt["src_port"]
