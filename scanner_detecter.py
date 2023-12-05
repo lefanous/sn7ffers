@@ -21,13 +21,12 @@ Feel free to add to this script. I haven't really made it robust, with error han
 '''
 
 from scapy.all import *  # Import the Scapy library for working with network packets
+from functools import partial
 import os
 import threading
+import socket
 import time
 import netifaces as ni
-
-# Get the internal IP address
-internal_ip = ni.ifaddresses('eth0')[ni.AF_INET][0]['addr'] 
 
 # Initialize dictionaries to store captured data
 connections = {}
@@ -42,13 +41,12 @@ scanner_patterns = [
     (['S', 'RA'], 'Nmap/zmap scanner', 'Closed'),
 ]
 
-def monitor_packet(pkt):
+def monitor_packet(internal_ip, pkt):
+    print(pkt.summary())
     if IP in pkt and TCP in pkt:  # Check if the packet is an IP and TCP packet
         src_ip = pkt[IP].src  # Get the source IP address from the packet
         dst_ip = pkt[IP].dst  # Get the destination IP address from the packet
         dst_port = pkt[TCP].dport  # Get the destination port from the packet
-        if dst_port == 443:
-            return
         src_port = pkt[TCP].sport  # Get the source port from the packet
         tcp_flag = pkt[TCP].flags  # Get the TCP flags from the packet
 
@@ -108,22 +106,41 @@ def choose_interface(interfaces):
         print("Invalid selection. Please select a valid interface number.")
         return choose_interface(interfaces)
 
-def periodic_scan_detection():
+def periodic_scan_detection(internal_ip, interface):
     while True:
         os.system("clear")
         print(ascii_art)
+        print(f"Sniffing on interface: {interface}")
+        print(f"Internal IP: {internal_ip}")
+        print("=================================")
         print_scan_detection()
         time.sleep(1)
+
+def get_internal_ip():
+    try:
+        # Create a socket to connect to an external site
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+            # Use Google's public DNS server to find our IP
+            # No actual connection is made, so the target address can be anything
+            s.connect(("8.8.8.8", 80))
+            return s.getsockname()[0]
+    except Exception as e:
+        print(f"Error obtaining internal IP: {e}")
+        return None
 
 if __name__ == '__main__':
     interfaces = get_interfaces()
     selected_interface = choose_interface(interfaces)
     print(f"Sniffing on interface: {selected_interface}")
 
-     # Start the periodic scan detection in a separate thread
-    detection_thread = threading.Thread(target=periodic_scan_detection)
+    internal_ip = get_internal_ip()
+
+    # Start the periodic scan detection in a separate thread
+    periodic_scan_detection_partial = partial(periodic_scan_detection, internal_ip, selected_interface)
+    detection_thread = threading.Thread(target=periodic_scan_detection_partial)
     detection_thread.daemon = True  # This makes the thread exit when the main program exits
     detection_thread.start()
 
     # Start sniffing
-    sniff(prn=monitor_packet, store=0, iface=selected_interface)  # Start capturing packets on the chosen interface
+    monitor_packet_internal_ip = partial(monitor_packet, internal_ip)
+    sniff(prn=monitor_packet_internal_ip, store=0, iface=selected_interface)  # Start capturing packets on the chosen interface
