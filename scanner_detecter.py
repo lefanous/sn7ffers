@@ -50,7 +50,7 @@ if __name__ == '__main__':
     internal_ip = get_internal_ip()
 
     # Start the periodic scan detection in a separate thread
-    periodic_scan_detection_partial = partial(periodic_scan_detection, internal_ip, selected_interface)
+    periodic_scan_detection_partial = partial(periodic_scan_detection, internal_ip, selected_interface, connections, scanner_patterns, pattern_match)
     detection_thread = threading.Thread(target=periodic_scan_detection_partial)
     detection_thread.daemon = True  # This makes the thread exit when the main program exits
     detection_thread.start()
