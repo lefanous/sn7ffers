@@ -1,3 +1,5 @@
+#/usr/bin/env python3
+
 '''
 ----- README ----
 ## Objective:
@@ -28,8 +30,14 @@ import socket
 import time
 import netifaces as ni
 
-# Initialize dictionaries to store captured data
-connections = {}
+ascii_art = r'''
+   _____    _____________              
+  / ___/___/__  / __/ __/__  __________
+  \__ \/ __ \/ / /_/ /_/ _ \/ ___/ ___/
+ ___/ / / / / / __/ __/  __/ /  (__  ) 
+/____/_/ /_/_/_/ /_/  \___/_/  /____/  
+                                       
+'''
 
 scanner_patterns = [
     (['S', 'RA', 'S', 'SA', 'A', 'RA'], 'Angry IP scanner', 'Open'),
@@ -40,16 +48,8 @@ scanner_patterns = [
     (['S', 'RA'], 'Nmap/zmap scanner', 'Closed'),
 ]
 
-ascii_art = r'''
-   _____    _____________              
-  / ___/___/__  / __/ __/__  __________
-  \__ \/ __ \/ / /_/ /_/ _ \/ ___/ ___/
- ___/ / / / / / __/ __/  __/ /  (__  ) 
-/____/_/ /_/_/_/ /_/  \___/_/  /____/  
-                                       
-'''
-
-
+# Initialize dictionaries to store captured data
+connections = {}
 
 def monitor_packet(internal_ip, pkt):
     if IP in pkt and TCP in pkt:  # Check if the packet is an IP and TCP packet
@@ -60,7 +60,9 @@ def monitor_packet(internal_ip, pkt):
         tcp_flag = pkt[TCP].flags  # Get the TCP flags from the packet
 
         # Define the key for the captured data dictionary
-        connection_key = src_ip if src_ip != internal_ip else dst_ip
+        attacker_ip = src_ip if src_ip != internal_ip else dst_ip
+        target_port = dst_port if src_ip != internal_ip else src_port
+        connection_key = [attacker_ip, target_port]
 
         # Initialize or update the connection data
         if connection_key not in connections:
@@ -68,11 +70,6 @@ def monitor_packet(internal_ip, pkt):
         else:
             connections[connection_key]["tcp_flags"].append(tcp_flag)
             connections[connection_key]["dst_ports"].append(dst_port)
-
-def get_interfaces():
-    return get_if_list()
-
-
 
 def pattern_match(flag_sequence, pattern):
     """
@@ -95,6 +92,9 @@ def print_scan_detection():
         for pattern, name, status in scanner_patterns:
             if(pattern_match(data["tcp_flags"], pattern)):
                 print_detection_line(name, src, data["dst_ports"], status)
+
+def get_interfaces():
+    return get_if_list()
 
 def choose_interface(interfaces):
     print(ascii_art)
