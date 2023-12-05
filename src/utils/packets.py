@@ -1,3 +1,5 @@
+from scapy.all import IP, TCP
+
 def extract_packet_info(packet):
     if IP in packet and TCP in packet: # Check if the packet is an IP and TCP packet
         return {
