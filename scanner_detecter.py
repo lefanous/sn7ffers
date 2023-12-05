@@ -110,6 +110,8 @@ def choose_interface(interfaces):
 
 def periodic_scan_detection():
     while True:
+        os.system("clear")
+        print(ascii_art)
         print_scan_detection()
         time.sleep(1)
 
