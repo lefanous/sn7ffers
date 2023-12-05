@@ -31,7 +31,6 @@ import netifaces as ni
 # Initialize dictionaries to store captured data
 connections = {}
 
-# Scanner detection patterns
 scanner_patterns = [
     (['S', 'RA', 'S', 'SA', 'A', 'RA'], 'Angry IP scanner', 'Open'),
     (['S', 'RA', 'S', 'RA'], 'Angry IP scanner', 'Closed'),
@@ -41,8 +40,18 @@ scanner_patterns = [
     (['S', 'RA'], 'Nmap/zmap scanner', 'Closed'),
 ]
 
+ascii_art = r'''
+   _____    _____________              
+  / ___/___/__  / __/ __/__  __________
+  \__ \/ __ \/ / /_/ /_/ _ \/ ___/ ___/
+ ___/ / / / / / __/ __/  __/ /  (__  ) 
+/____/_/ /_/_/_/ /_/  \___/_/  /____/  
+                                       
+'''
+
+
+
 def monitor_packet(internal_ip, pkt):
-    print(pkt.summary())
     if IP in pkt and TCP in pkt:  # Check if the packet is an IP and TCP packet
         src_ip = pkt[IP].src  # Get the source IP address from the packet
         dst_ip = pkt[IP].dst  # Get the destination IP address from the packet
@@ -63,14 +72,7 @@ def monitor_packet(internal_ip, pkt):
 def get_interfaces():
     return get_if_list()
 
-ascii_art = r'''
-   _____    _____________              
-  / ___/___/__  / __/ __/__  __________
-  \__ \/ __ \/ / /_/ /_/ _ \/ ___/ ___/
- ___/ / / / / / __/ __/  __/ /  (__  ) 
-/____/_/ /_/_/_/ /_/  \___/_/  /____/  
-                                       
-'''
+
 
 def pattern_match(flag_sequence, pattern):
     """
