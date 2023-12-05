@@ -1,5 +1,6 @@
 import socket
 from scapy.all import get_if_list
+from src.utils.ascii import ascii_art
 
 def get_interfaces():
     return get_if_list()
