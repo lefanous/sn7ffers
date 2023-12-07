@@ -5,7 +5,7 @@ import time
 
 from scapy.all import *
 from functools import partial
-from src.utils.scanner_patterns import scanner_patterns, pattern_match
+from src.utils.scanner_signatures import scanner_signatures, signature_match
 from src.utils.interface import get_interfaces, get_internal_ip, choose_interface
 from src.utils.print import periodic_scan_detection
 from src.utils.packets import extract_packet_info
@@ -45,7 +45,7 @@ if __name__ == '__main__':
     internal_ip = get_internal_ip()
 
     # Start the periodic scan detection in a separate thread
-    periodic_scan_detection_partial = partial(periodic_scan_detection, internal_ip, selected_interface, connections, scanner_patterns, pattern_match)
+    periodic_scan_detection_partial = partial(periodic_scan_detection, internal_ip, selected_interface, connections, scanner_signatures, signature_match)
     detection_thread = threading.Thread(target=periodic_scan_detection_partial)
     detection_thread.daemon = True  # This makes the thread exit when the main program exits
     detection_thread.start()

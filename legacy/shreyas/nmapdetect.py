@@ -7,7 +7,7 @@ import scapy.all as scapy
 def detect_nmap_scan(packet):
     if packet.haslayer(scapy.TCP):
         flags = packet[scapy.TCP].flags
-        # Check for Nmap-like scan patterns
+        # Check for Nmap-like scan signatures
         if flags == 0x12 or flags == 0x14 or flags == 0x18: #You have to let me know what these flags mean in our next meeting! :)
             print("[+] Possible Nmap scan detected from {}:{}".format(packet[scapy.IP].src, packet[scapy.TCP].sport))
 
