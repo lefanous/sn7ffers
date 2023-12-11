@@ -1,0 +1,22 @@
+## Objective:
+
+Use Scapy to sniff the packets arriving at a network interface. After each packet is
+captured, process it using a callback function to get useful information from it.
+
+## Algorithm:
+
+This script captures packets, tracks attempts a source IP makes to reach a specific destination IP and port,
+and continuously displays this information on the screen. It checks for SYN-ACK or RST TCP flags to
+determine if the port is open or closed.
+
+## How to:
+
+1. Import the file into your virtual machine,
+2. Open your terminal, cd to the directory containing the source code
+3. Run command: $chmod +x <file>, to make the file executable
+4. Run the script with the following command: $sudo ./<file>
+5. Use another/parallel terminal to run your scan as usual. The result should appear in the other terminal ;-)
+
+## Note:
+
+Feel free to add to this script. I haven't really made it robust, with error handling yet.
